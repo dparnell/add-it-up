@@ -1,0 +1,111 @@
+/*
+  CSS
+*/
+
+body {
+    background-color: black;
+    color: #d2cdc5;
+    font-family: 'Arial Narrow', sans-serif;
+}
+
+@keyframes appear {
+    from { opacity: 0 }
+    to { opacity: 100% }
+}
+
+@keyframes hide {
+    from { opacity: 100% }
+    to { opacity: 0 }
+}
+
+.visible {
+    animation-name: appear;
+    animation-duration: 0.2s;
+    animation-iteration-count: 1;
+}
+
+.fade {
+    animation-name: hide;
+    animation-duration: 0.2s;
+    animation-iteration-count: 1;
+}
+
+.dialog {
+    position: absolute;
+    background-color: #5d5555;
+    left: 25%;
+    width: 50%;
+    padding-bottom: 1em;
+}
+
+.dialog h1 {
+    text-align: center;
+    border-bottom: double 3px;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    margin: 0;
+}
+
+.ask {
+    font-size: 200%;
+    text-align: center;
+}
+
+.ask input {
+    font-size: 200%;
+    text-align: center;
+    background: none;
+    border: solid 1px black;
+    width: 90%;
+    margin-left: 5%;
+    margin-top: 0.5em;
+}
+
+.ask button {
+    clear: both;
+    margin-top: 0.25em;
+    font-size: 150%;
+}
+
+.menu button {
+    font-size: 200%;
+    width: 30%;
+    margin-left: 10%;
+    margin-top: 0.25em;
+}
+
+.results {
+    font-size: 200%;
+    text-align: center;
+}
+
+.results button {
+    clear: both;
+    margin-top: 0.25em;
+    font-size: 150%;
+}
+
+.wrong {
+    color: #ff6262;
+    font-weight: bold;
+}
+
+.correct {
+    color: lime;
+}
+
+.score-section {
+    float: left;
+    width: 24%;
+    font-size: small;
+    border: solid 1px;
+    margin: 0.25em;
+}
+
+li.score-item {
+  list-style-type: none;
+}
+
+.player-name {
+    float: left;
+}
