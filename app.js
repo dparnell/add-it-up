@@ -230,32 +230,14 @@ function ask(m) {
     return result;
 }
 
-function shuffle(array) {
-    // stolen from here: https://www.frankmitchell.org/2015/01/fisher-yates/
-    var i = 0, j = 0, temp = null;
-    for (i = array.length - 1; i > 0; i -= 1) {
-        j = Math.floor(Math.random() * (i + 1));
-        temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-
-    return array;
-}
-
 /*
  *  The actual game starts here
  */
 
-function play_game(table) {
+function play_game() {
     var result = new P();
-    var i, questions;
 
-    questions = [];
-    for(i = 1; i < 13; i++) {
-        questions.push(i);
-    }
-    shuffle(questions);
+    question = 0;
 
     function the_time() {
         return (new Date()).getTime() / 1000;
@@ -271,17 +253,19 @@ function play_game(table) {
 
 
     var results = [];
-    var question = null;
+    var question = 0;
     var start_time = null;
+    var na, nb;
 
     function done() {
         if(txt.value) {
             var end_time = the_time();
 
             results.push({
-                question: (question * table) + " / " + table,
+                a: na,
+                b: nb,
                 answer: Number(txt.value),
-                correct_answer: question,
+                correct_answer: na + nb,
                 time_taken: end_time - start_time
             });
             next_question();
@@ -289,6 +273,15 @@ function play_game(table) {
     }
 
     btn.onclick = done;
+
+    function times_up() {
+        kill(dlg).then(function() {
+            result.resolve({message: "Times Up!", results: results});
+        });
+    }
+
+    var timer = window.setTimeout(times_up, 60 * 1000);
+
 
     a(document.body, dlg);
     txt.focus();
@@ -308,20 +301,31 @@ function play_game(table) {
     };
 
     function next_question() {
-        if(questions.length === 0) {
+        question++;
+        if(question > 33) {
+            window.clearTimeout(timer);
+
             kill(dlg).then(function() {
-                result.resolve({table: table, results: results});
+                result.resolve({message: "All Done", results: results});
             });
         } else {
-            question = questions.pop();
+            if(question < 5) {
+                na = Math.floor(Math.random() * 4);
+                nb = Math.floor(Math.random() * 4);
+            } else if(question < 10) {
+                na = Math.floor(Math.random() * 8);
+                nb = Math.floor(Math.random() * 8);
+            } else {
+                na = Math.floor(Math.random() * 10);
+                nb = Math.floor(Math.random() * 10);
+            }
             start_time = the_time();
 
-            t(h1, "What is " + (question * table) + " divided by " + table + "?");
+            t(h1, "What is " + na + " + " + nb + " ?");
             txt.value = "";
             txt.focus();
         }
     }
-
     next_question();
 
     return result;
@@ -330,21 +334,17 @@ function play_game(table) {
 function show_menu(player_name) {
     var result = new P();
     var dlg = e("div", {class: "menu dialog visible"});
-    a(dlg, t(e("h1"), "Hi " + player_name+"! Choose your divisor"));
+    a(dlg, t(e("h1"), "Hi " + player_name));
 
-    function make_menu_item(index) {
-        var btn = t(e("button"), index);
-        btn.onclick = function() {
-            kill(dlg).then(function() {
-                result.resolve(index);
-            });
-        };
-        a(dlg, btn);
-    }
+    a(dlg, t(e("p"), "Get ready to add some numbers!"));
 
-    for(var i = 1; i <= 12; i++) {
-        make_menu_item(i);
-    }
+    var btn = t(e("button"), "Okay");
+    btn.onclick = function() {
+        kill(dlg).then(function() {
+            result.resolve();
+        });
+    };
+    a(dlg, btn);
 
     a(document.body, dlg);
     return result;
@@ -358,21 +358,28 @@ function show_results(results) {
     var next = new P();
 
     var dlg = e("div", {class: "results dialog visible"});
-    var h1 = e("h1");
+    var h1 = t(e("h1"), results.message);
     var answer, result, is_correct, correct_count, total_time;
     a(dlg, h1);
+    var h2 = e("h2");
+    a(dlg, h2);
 
     total_time = 0;
-    correct_count = 12;
-    for(var i=0; i<12; i++) {
+    correct_count = 0;
+    var L = results.results.length;
+    for(var i=0; i<L; i++) {
         result = results.results[i];
         is_correct = result.answer == result.correct_answer;
-        if(!is_correct) {
-            correct_count--;
+        if(is_correct) {
+            correct_count++;
         }
         answer = e("div", {class: is_correct ? "correct" : "wrong"});
-        a(dlg, t(answer, result.question + " = " + result.answer + " in " + format(result.time_taken) + "s"));
+        a(dlg, t(answer, result.a + " + " + result.b + " = " + result.answer + " in " + format(result.time_taken) + "s"));
         total_time += result.time_taken;
+    }
+
+    if(L<33 || total_time > 60) {
+        total_time = 60.0;
     }
 
     results.correct_count = correct_count;
@@ -380,10 +387,10 @@ function show_results(results) {
 
     a(dlg, t(e("div"), "You took " + format(total_time) + " seconds"));
 
-    if(correct_count == 12) {
-        t(h1, "Congratulations. You got them all correct!");
+    if(correct_count == 33) {
+        t(h2, "Congratulations. You got them all correct!");
     } else {
-        t(h1, "You got " + correct_count + " out of 12 correct");
+        t(h2, "You got " + correct_count + " out of 33 correct");
     }
 
     var btn = t(e("button"), "Okay");
@@ -417,38 +424,25 @@ function show_high_scores(scores) {
 
     var best = {};
     var i, j, L = scores.length;
-    var s, aa, ss;
-
-    for(i=0; i<L; i++) {
-        s = scores[i];
-        ss = s[0].toString();
-
-        aa = best[ss];
-        if(!aa) {
-            aa = best[ss] = [];
-        }
-
-        aa.push(s);
-    }
 
     var div, ul, li, n;
 
-    for(i=1; i<=12; i++) {
-        ss = i.toString();
-        div = e("div", {class: "score-section"});
-        a(dlg, div);
-        a(div, t(e("h2"), "Divide by " + i));
-        ul = e("ul", {class: "scores"});
-        for(j=0; j<5; j++) {
-            aa = best[ss];
-            li = a(ul, e("li", {class: "score-item"}));
-            if(aa && aa[j]) {
-                a(li, t(e("span", {class: "player-name"}), aa[j][1]));
-                a(li, t(e("span", {class: "score"}), aa[j][2].toFixed(2)));
-            } else {
-                a(li, t(e("span", {class: "nothing"}), "-"));
-            }
-        }
+    div = e("div", {class: "score-section"});
+    a(dlg, div);
+    ul = e("table", {class: "scores"});
+    li = a(ul, e("tr"));
+    a(li, t(e("th"), ""));
+    a(li, t(e("th"), "Name"));
+    a(li, t(e("th"), "Score"));
+    a(li, t(e("th"), "Time"));
+
+    for(i=0; i<L; i++) {
+        li = a(ul, e("tr", {class: "score-item"}));
+        a(li, t(e("td", {class: "rank"}), i + 1));
+        a(li, t(e("td", {class: "player-name"}), scores[i][0]));
+        a(li, t(e("td", {class: "score"}), scores[i][1]));
+        a(li, t(e("td", {class: "time"}), scores[i][2].toFixed(2)));
+
         a(div, ul);
     }
 

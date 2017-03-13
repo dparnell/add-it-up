@@ -18,6 +18,10 @@ body {
     to { opacity: 0 }
 }
 
+p {
+    font-size: 24pt;
+}
+
 .visible {
     animation-name: appear;
     animation-duration: 0.2s;
@@ -95,9 +99,6 @@ body {
 }
 
 .score-section {
-    float: left;
-    width: 24%;
-    font-size: small;
     border: solid 1px;
     margin: 0.25em;
 }
@@ -106,6 +107,29 @@ li.score-item {
   list-style-type: none;
 }
 
+.scores {
+    font-size: 24pt;
+}
+
+.rank {
+    width: 1%;
+}
+
 .player-name {
-    float: left;
+    width: 50%;
+}
+
+.score {
+    padding-left: 1em;
+    width: 10%;
+}
+
+.time {
+    padding-left: 1em;
+    width: 10%;
+}
+
+th {
+    border-bottom: solid 1px;
+    text-align: left;
 }
