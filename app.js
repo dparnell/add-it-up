@@ -3,7 +3,7 @@
  */
 
 /*
-  Base on CSS Animation code by Osvaldas Valutis, www.osvaldas.info
+  Based on CSS Animation code by Osvaldas Valutis, www.osvaldas.info
   Available for use under the MIT License
 */
 
@@ -234,6 +234,35 @@ function ask(m) {
  *  The actual game starts here
  */
 
+window.timeLimit = 60;
+window.questionCount = 33;
+
+window.makeQuestion = function(question) {
+    var r = {};
+
+    if(question < 5) {
+        r.na = Math.floor(Math.random() * 4);
+        r.nb = Math.floor(Math.random() * 4);
+    } else if(question < 10) {
+        r.na = Math.floor(Math.random() * 8);
+        r.nb = Math.floor(Math.random() * 8);
+    } else {
+        r.na = Math.floor(Math.random() * 10);
+        r.nb = Math.floor(Math.random() * 10);
+    }
+
+    return r;
+}
+
+window.buildQuestionUI = function(dlg) {
+    var h1 = e("h1");
+    a(dlg, h1);
+
+    return function(na, nb) {
+	t(h1, "What is " + na + " + " + nb + " ?");
+    };
+}
+
 function play_game() {
     var result = new P();
 
@@ -244,8 +273,7 @@ function play_game() {
     }
 
     var dlg = e("div", {class: "ask dialog visible"});
-    var h1 = e("h1");
-    a(dlg, h1);
+    var updateGameUI = window.buildQuestionUI(dlg);
     var txt = e("input", {type: "text"});
     a(dlg, txt);
     var btn = t(e("button"), "Okay");
@@ -280,7 +308,7 @@ function play_game() {
         });
     }
 
-    var timer = window.setTimeout(times_up, 60 * 1000);
+    var timer = window.setTimeout(times_up, window.timeLimit * 1000);
 
 
     a(document.body, dlg);
@@ -302,26 +330,20 @@ function play_game() {
 
     function next_question() {
         question++;
-        if(question > 33) {
+        if(question > window.questionCount) {
             window.clearTimeout(timer);
 
             kill(dlg).then(function() {
                 result.resolve({message: "All Done", results: results});
             });
         } else {
-            if(question < 5) {
-                na = Math.floor(Math.random() * 4);
-                nb = Math.floor(Math.random() * 4);
-            } else if(question < 10) {
-                na = Math.floor(Math.random() * 8);
-                nb = Math.floor(Math.random() * 8);
-            } else {
-                na = Math.floor(Math.random() * 10);
-                nb = Math.floor(Math.random() * 10);
-            }
+	    var q = window.makeQuestion(question);
+	    na = q.na;
+	    nb = q.nb;
+	    updateGameUI(na, nb);
             start_time = the_time();
 
-            t(h1, "What is " + na + " + " + nb + " ?");
+
             txt.value = "";
             txt.focus();
         }
@@ -378,8 +400,8 @@ function show_results(results) {
         total_time += result.time_taken;
     }
 
-    if(L<33 || total_time > 60) {
-        total_time = 60.0;
+    if(L<window.questionCount || total_time > window.timeLimit) {
+        total_time = window.timeLimit;
     }
 
     results.correct_count = correct_count;
@@ -387,10 +409,10 @@ function show_results(results) {
 
     a(dlg, t(e("div"), "You took " + format(total_time) + " seconds"));
 
-    if(correct_count == 33) {
+    if(correct_count == window.questionCount) {
         t(h2, "Congratulations. You got them all correct!");
     } else {
-        t(h2, "You got " + correct_count + " out of 33 correct");
+        t(h2, "You got " + correct_count + " out of " + window.questionCount + " correct");
     }
 
     var btn = t(e("button"), "Okay");

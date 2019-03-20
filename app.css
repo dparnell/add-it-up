@@ -83,6 +83,10 @@ p {
     text-align: center;
 }
 
+.big {
+    font-size: 300%;
+}
+
 .results button {
     clear: both;
     margin-top: 0.25em;
