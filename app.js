@@ -273,7 +273,7 @@ window.buildQuestionUI = function(dlg) {
     a(dlg, h1);
 
     return function(na, nb) {
-	t(h1, "What is " + na + " + " + nb + " ?");
+        t(h1, "What is " + na + " + " + nb + " ?");
     };
 }
 
@@ -355,12 +355,12 @@ function play_game() {
                 result.resolve({message: "All Done", results: results});
             });
         } else {
-	          var q = window.makeQuestion(question);
-	          na = q.na;
-	          nb = q.nb;
+            var q = window.makeQuestion(question);
+            na = q.na;
+            nb = q.nb;
             nc = q.nc;
 
-	          updateGameUI(na, nb);
+            updateGameUI(na, nb);
             start_time = the_time();
 
 
