@@ -1,5 +1,5 @@
 /*
-Example 3 digit addition plugin
+  Example 3 digit addition plugin
 */
 
 window.timeLimit = 300; // 5 minutes
@@ -11,11 +11,13 @@ window.makeQuestion = function(_q) {
     r.nb = answer - r.na;
 
     if(r.nb > r.na) {
-	// make sure the biggest number is on the top
-	var t = r.nb;
-	r.nb = r.na;
-	r.na = t;
+        // make sure the biggest number is on the top
+        var t = r.nb;
+        r.nb = r.na;
+        r.na = t;
     }
+
+    r.nc = r.na + r.nb;
 
     return r;
 }
