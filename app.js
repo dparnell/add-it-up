@@ -237,6 +237,18 @@ function ask(m) {
 window.timeLimit = 60;
 window.questionCount = 33;
 
+window.showMenu = function(dlg, result) {
+    a(dlg, t(e("p"), "Get ready to add some numbers!"));
+
+    var btn = t(e("button"), "Okay");
+    btn.onclick = function() {
+        kill(dlg).then(function() {
+            result.resolve();
+        });
+    };
+    a(dlg, btn);
+}
+
 window.makeQuestion = function(question) {
     var r = {};
 
@@ -366,15 +378,7 @@ function show_menu(player_name) {
     var dlg = e("div", {class: "menu dialog visible"});
     a(dlg, t(e("h1"), "Hi " + player_name));
 
-    a(dlg, t(e("p"), "Get ready to add some numbers!"));
-
-    var btn = t(e("button"), "Okay");
-    btn.onclick = function() {
-        kill(dlg).then(function() {
-            result.resolve();
-        });
-    };
-    a(dlg, btn);
+    window.showMenu(dlg, result);
 
     a(document.body, dlg);
     return result;
