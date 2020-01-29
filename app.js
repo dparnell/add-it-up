@@ -251,6 +251,8 @@ window.makeQuestion = function(question) {
         r.nb = Math.floor(Math.random() * 10);
     }
 
+    r.nc = r.na + r.nb;
+
     return r;
 }
 
@@ -261,6 +263,10 @@ window.buildQuestionUI = function(dlg) {
     return function(na, nb) {
 	t(h1, "What is " + na + " + " + nb + " ?");
     };
+}
+
+window.format_result = function(result) {
+    return result.a + " + " + result.b + " = " + result.answer;
 }
 
 function play_game() {
@@ -283,7 +289,7 @@ function play_game() {
     var results = [];
     var question = 0;
     var start_time = null;
-    var na, nb;
+    var na, nb, nc;
 
     function done() {
         if(txt.value) {
@@ -293,7 +299,7 @@ function play_game() {
                 a: na,
                 b: nb,
                 answer: Number(txt.value),
-                correct_answer: na + nb,
+                correct_answer: nc,
                 time_taken: end_time - start_time
             });
             next_question();
@@ -337,10 +343,12 @@ function play_game() {
                 result.resolve({message: "All Done", results: results});
             });
         } else {
-	    var q = window.makeQuestion(question);
-	    na = q.na;
-	    nb = q.nb;
-	    updateGameUI(na, nb);
+	          var q = window.makeQuestion(question);
+	          na = q.na;
+	          nb = q.nb;
+            nc = q.nc;
+
+	          updateGameUI(na, nb);
             start_time = the_time();
 
 
@@ -396,7 +404,12 @@ function show_results(results) {
             correct_count++;
         }
         answer = e("div", {class: is_correct ? "correct" : "wrong"});
-        a(dlg, t(answer, result.a + " + " + result.b + " = " + result.answer + " in " + format(result.time_taken) + "s"));
+        a(dlg, t(answer, window.format_result(result) + " in " + format(result.time_taken) + "s"));
+        if(!is_correct) {
+            answer = e("div", {class: "wrong"});
+            a(dlg, t(answer, "The correct answer was " + result.correct_answer));
+        }
+
         total_time += result.time_taken;
     }
 
