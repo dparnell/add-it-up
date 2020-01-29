@@ -24,7 +24,7 @@ window.buildQuestionUI = function(dlg) {
     a(row, q2);
 
     return function(na, nb) {
-	t(q1, na);
-	t(q2, nb);
+        t(q1, na);
+        t(q2, nb);
     };
 }
