@@ -45,7 +45,9 @@ function a(p, e) {
 
 // remove a child element
 function r(e) {
-    e.parentNode.removeChild(e);
+    if(e.parentNode) {
+        e.parentNode.removeChild(e);
+    }
 }
 
 // set element text
@@ -236,6 +238,7 @@ function ask(m) {
 
 window.timeLimit = 60;
 window.questionCount = 33;
+window.disableHighScoreTable = false;
 
 window.showMenu = function(dlg, result) {
     a(dlg, t(e("p"), "Get ready to add some numbers!"));
@@ -458,43 +461,49 @@ function show_results(results) {
 function show_high_scores(scores) {
     var next = new P();
 
-    var dlg = e("div", {class: "results dialog visible"});
-    a(dlg, t(e("h1"), "Best Scores"));
-
-    var best = {};
-    var i, j, L = scores.length;
-
-    var div, ul, li, n;
-
-    div = e("div", {class: "score-section"});
-    a(dlg, div);
-    ul = e("table", {class: "scores"});
-    li = a(ul, e("tr"));
-    a(li, t(e("th"), ""));
-    a(li, t(e("th"), "Name"));
-    a(li, t(e("th"), "Score"));
-    a(li, t(e("th"), "Time"));
-
-    for(i=0; i<L; i++) {
-        li = a(ul, e("tr", {class: "score-item"}));
-        a(li, t(e("td", {class: "rank"}), i + 1));
-        a(li, t(e("td", {class: "player-name"}), scores[i][0]));
-        a(li, t(e("td", {class: "score"}), scores[i][1]));
-        a(li, t(e("td", {class: "time"}), scores[i][2].toFixed(2)));
-
-        a(div, ul);
-    }
-
-    var btn = t(e("button"), "Okay");
-
-    a(dlg, btn);
-    btn.onclick = function() {
-        kill(dlg).then(function() {
+    if(window.disableHighScoreTable) {
+        window.setTimeout(function() {
             next.resolve();
-        });
-    };
+        }, 10);
+    } else {
+        var dlg = e("div", {class: "results dialog visible"});
+        a(dlg, t(e("h1"), "Best Scores"));
 
-    a(document.body, dlg);
+        var best = {};
+        var i, j, L = scores.length;
+
+        var div, ul, li, n;
+
+        div = e("div", {class: "score-section"});
+        a(dlg, div);
+        ul = e("table", {class: "scores"});
+        li = a(ul, e("tr"));
+        a(li, t(e("th"), ""));
+        a(li, t(e("th"), "Name"));
+        a(li, t(e("th"), "Score"));
+        a(li, t(e("th"), "Time"));
+
+        for(i=0; i<L; i++) {
+            li = a(ul, e("tr", {class: "score-item"}));
+            a(li, t(e("td", {class: "rank"}), i + 1));
+            a(li, t(e("td", {class: "player-name"}), scores[i][0]));
+            a(li, t(e("td", {class: "score"}), scores[i][1]));
+            a(li, t(e("td", {class: "time"}), scores[i][2].toFixed(2)));
+
+            a(div, ul);
+        }
+
+        var btn = t(e("button"), "Okay");
+
+        a(dlg, btn);
+        btn.onclick = function() {
+            kill(dlg).then(function() {
+                next.resolve();
+            });
+        };
+
+        a(document.body, dlg);
+    }
 
     return next;
 }
